@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Donnez votre avis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f6f3;--surface:#fff;--ink:#17262b;--muted:#5d6b70;--line:#dde2de;--accent:#0f766e;--accent-ink:#fff;--star:#e5a50a;--star-off:#cfd5d1;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a1d;--surface:#172429;--ink:#eef2f0;--muted:#9fb0b4;--line:#2a3b41;--accent:#2dd4bf;--accent-ink:#06211e;--star:#f5b82e;--star-off:#3a4b51}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif}
+main{max-width:34rem;margin:0 auto;padding:1.5rem 1.25rem 3rem}
+h1,h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.1;margin:0}
+h1{font-size:2.2rem;font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.25rem;font-weight:700}
+.sub{color:var(--muted);margin:.5rem 0 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.25rem;margin-top:1.5rem}
+.stars{display:flex;gap:.25rem;margin:.75rem 0 .25rem}
+.stars button{flex:1;border:0;background:none;padding:.25rem 0;font-size:2.6rem;line-height:1;color:var(--star-off);cursor:pointer;border-radius:10px}
+.stars button.on{color:var(--star)}
+.hint{min-height:1.4em;color:var(--muted);font-size:.9rem;margin:0}
+label{display:block;font-weight:500;margin-top:1rem}
+textarea,input{width:100%;margin-top:.35rem;padding:.75rem;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:inherit}
+textarea{min-height:7rem;resize:vertical}
+:is(button,textarea,input):focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.send{width:100%;margin-top:1.25rem;padding:.9rem;border:0;border-radius:12px;background:var(--accent);color:var(--accent-ink);font:700 1.05rem "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.send:disabled{opacity:.45;cursor:not-allowed}
+.err{color:#c2410c;font-size:.9rem;min-height:1.3em;margin:.5rem 0 0}
+.summary{display:flex;align-items:baseline;gap:.6rem;margin-top:2rem}
+.avg{font:700 2.4rem "Bricolage Grotesque",system-ui,sans-serif}
+.count{color:var(--muted)}
+.bars{margin:.75rem 0 0;display:grid;gap:.3rem;font-size:.85rem;color:var(--muted)}
+.bar{display:grid;grid-template-columns:1.2rem 1fr 1.5rem;gap:.5rem;align-items:center}
+.bar i{display:block;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar b{display:block;height:100%;background:var(--star)}
+.review{border-top:1px solid var(--line);padding:1rem 0}
+.review:first-child{border-top:0}
+.rhead{display:flex;justify-content:space-between;gap:1rem;color:var(--muted);font-size:.85rem}
+.rstars{color:var(--star);letter-spacing:.1em}
+.review p{margin:.35rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{color:var(--muted)}
+.thanks{display:none;text-align:center;padding:1rem 0}
+.gate{text-align:center;padding-top:20vh}
+.gate .ring{width:84px;height:84px;margin:0 auto 1.5rem;border:3px solid var(--accent);border-radius:50%;display:grid;place-items:center;font-size:2rem}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <!-- Écran affiché si la page est ouverte sans passer par la carte NFC -->
+  <section id="gate" class="gate hidden">
+    <div class="ring" aria-hidden="true">📲</div>
+    <h1>Approchez votre téléphone de la carte NFC</h1>
+    <p class="sub">Cette page d’avis s’ouvre uniquement en scannant la carte posée sur place.</p>
+  </section>
+
+  <section id="app" class="hidden">
+    <h1 id="name"></h1>
+    <p class="sub">Votre avis aide les autres clients. Cela prend 30 secondes.</p>
+
+    <form id="form" class="panel" novalidate>
+      <h2>Votre note</h2>
+      <div class="stars" id="stars" role="radiogroup" aria-label="Note sur 5"></div>
+      <p class="hint" id="hint" aria-live="polite"></p>
+
+      <label for="comment">Votre commentaire</label>
+      <textarea id="comment" maxlength="600" placeholder="Ce que vous avez aimé, ce qui pourrait être mieux…"></textarea>
+
+      <label for="author">Votre prénom (facultatif)</label>
+      <input id="author" maxlength="30" autocomplete="given-name">
+
+      <p class="err" id="err" role="alert"></p>
+      <button class="send" id="send" type="submit" disabled>Publier mon avis</button>
+      <div class="thanks" id="thanks"><h2>Merci pour votre avis !</h2><p class="sub">Il est maintenant visible ci-dessous.</p></div>
+    </form>
+
+    <div class="summary"><span class="avg" id="avg">–</span><span class="count" id="count"></span></div>
+    <div class="bars" id="bars"></div>
+    <div class="panel" id="list"></div>
+  </section>
+</main>
+
+<script>
+/* ---------------------------------------------------------------
+   STOCKAGE — c’est la seule partie à remplacer pour un vrai site.
+   Ici : localStorage (avis visibles uniquement sur cet appareil).
+   En production, remplacez list() et add() par des appels à votre
+   serveur (Supabase, Firebase, API maison…) pour que tous les
+   visiteurs voient les mêmes avis.
+---------------------------------------------------------------- */
+const Store = {
+  async list(place){
+    try { return JSON.parse(localStorage.getItem('avis:'+place) || '[]'); } catch(e){ return []; }
+  },
+  async add(place, review){
+    const all = await this.list(place);
+    all.unshift(review);
+    try { localStorage.setItem('avis:'+place, JSON.stringify(all.slice(0,500))); } catch(e){}
+  },
+  alreadyReviewed(place){
+    try { return Date.now() - Number(localStorage.getItem('last:'+place) || 0) < 864e5; } catch(e){ return false; }
+  },
+  markReviewed(place){ try { localStorage.setItem('last:'+place, String(Date.now())); } catch(e){} }
+};
+
+/* Le lien écrit sur la carte NFC : https://votre-site.fr/?r=Chez-Marco */
+const params = new URLSearchParams(location.search);
+const place = (params.get('r') || '').trim().slice(0,60);
+const $ = id => document.getElementById(id);
+
+if (!place) { $('gate').classList.remove('hidden'); }
+else { start(); }
+
+const LABELS = ['', 'Décevant', 'Moyen', 'Bien', 'Très bien', 'Excellent'];
+let rating = 0;
+
+function start(){
+  $('app').classList.remove('hidden');
+  $('name').textContent = place.replace(/[-_]+/g,' ');
+  document.title = 'Avis · ' + $('name').textContent;
+
+  const box = $('stars');
+  for (let i = 1; i <= 5; i++){
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = '★';
+    b.setAttribute('role','radio'); b.setAttribute('aria-checked','false');
+    b.setAttribute('aria-label', i + ' sur 5 : ' + LABELS[i]);
+    b.addEventListener('click', () => setRating(i));
+    box.appendChild(b);
+  }
+  $('form').addEventListener('submit', submit);
+  if (Store.alreadyReviewed(place)) lockForm();
+  render();
+}
+
+function setRating(n){
+  rating = n;
+  [...$('stars').children].forEach((b,i) => {
+    b.classList.toggle('on', i < n);
+    b.setAttribute('aria-checked', String(i + 1 === n));
+  });
+  $('hint').textContent = LABELS[n];
+  $('send').disabled = false;
+}
+
+function lockForm(){
+  [...$('form').elements].forEach(el => el.disabled = true);
+  $('thanks').style.display = 'block';
+  $('thanks').querySelector('p').textContent = 'Vous avez déjà donné votre avis aujourd’hui. Merci !';
+}
+
+async function submit(e){
+  e.preventDefault();
+  if (!rating){ $('err').textContent = 'Choisissez une note de 1 à 5 étoiles.'; return; }
+  const review = {
+    rating,
+    comment: $('comment').value.trim().slice(0,600),
+    author: $('author').value.trim().slice(0,30) || 'Anonyme',
+    date: new Date().toISOString()
+  };
+  await Store.add(place, review);
+  Store.markReviewed(place);
+  $('err').textContent = '';
+  $('send').style.display = 'none';
+  $('thanks').style.display = 'block';
+  [...$('form').elements].forEach(el => el.disabled = true);
+  render();
+}
+
+async function render(){
+  const reviews = await Store.list(place);
+  const n = reviews.length;
+  const avg = n ? reviews.reduce((s,r) => s + r.rating, 0) / n : 0;
+  $('avg').textContent = n ? avg.toFixed(1).replace('.',',') + ' / 5' : '–';
+  $('count').textContent = n ? n + (n > 1 ? ' avis' : ' avis') : '';
+
+  const bars = $('bars'); bars.textContent = '';
+  if (n) for (let s = 5; s >= 1; s--){
+    const c = reviews.filter(r => r.rating === s).length;
+    const row = document.createElement('div'); row.className = 'bar';
+    row.innerHTML = '<span></span><i><b></b></i><span></span>';
+    row.children[0].textContent = s;
+    row.querySelector('b').style.width = (c / n * 100) + '%';
+    row.children[2].textContent = c;
+    bars.appendChild(row);
+  }
+
+  const list = $('list'); list.textContent = '';
+  if (!n){
+    const p = document.createElement('p'); p.className = 'empty';
+    p.textContent = 'Aucun avis pour l’instant. Soyez le premier à donner le vôtre !';
+    list.appendChild(p); return;
+  }
+  reviews.forEach(r => {
+    const d = document.createElement('div'); d.className = 'review';
+    const h = document.createElement('div'); h.className = 'rhead';
+    const left = document.createElement('span');
+    const st = document.createElement('span'); st.className = 'rstars';
+    st.textContent = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+    st.setAttribute('aria-label', r.rating + ' sur 5');
+    left.appendChild(st);
+    const right = document.createElement('span');
+    right.textContent = r.author + ' · ' + new Date(r.date).toLocaleDateString('fr-FR');
+    h.append(left, right); d.appendChild(h);
+    if (r.comment){ const p = document.createElement('p'); p.textContent = r.comment; d.appendChild(p); }
+    list.appendChild(d);
+  });
+}
+</script>
+</body>
+</html>
