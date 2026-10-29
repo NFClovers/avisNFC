@@ -85,21 +85,28 @@ textarea{min-height:7rem;resize:vertical}
 </main>
 
 <script>
-/* ---------------------------------------------------------------
-   STOCKAGE — c’est la seule partie à remplacer pour un vrai site.
-   Ici : localStorage (avis visibles uniquement sur cet appareil).
-   En production, remplacez list() et add() par des appels à votre
-   serveur (Supabase, Firebase, API maison…) pour que tous les
-   visiteurs voient les mêmes avis.
----------------------------------------------------------------- */
+/* STOCKAGE : les avis sont enregistrés dans Supabase et visibles par tous. */
+const SUPABASE_URL = 'https://nkhxyzrvyhsmicbxrdgr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_XVJdnraDntLIytI3K09Hsg_wHDVexBf'; // clé publique, faite pour être visible
 const Store = {
+  headers(){ return { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' }; },
   async list(place){
-    try { return JSON.parse(localStorage.getItem('avis:'+place) || '[]'); } catch(e){ return []; }
+    try {
+      const url = SUPABASE_URL + '/rest/v1/reviews?select=rating,comment,author,created_at'
+        + '&place=eq.' + encodeURIComponent(place) + '&order=created_at.desc&limit=200';
+      const res = await fetch(url, { headers: this.headers() });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rows = await res.json();
+      return rows.map(r => ({ rating: r.rating, comment: r.comment || '', author: r.author || 'Anonyme', date: r.created_at }));
+    } catch(e){ return null; }
   },
   async add(place, review){
-    const all = await this.list(place);
-    all.unshift(review);
-    try { localStorage.setItem('avis:'+place, JSON.stringify(all.slice(0,500))); } catch(e){}
+    const res = await fetch(SUPABASE_URL + '/rest/v1/reviews', {
+      method: 'POST',
+      headers: Object.assign({ 'Prefer': 'return=minimal' }, this.headers()),
+      body: JSON.stringify({ place, rating: review.rating, comment: review.comment, author: review.author })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
   },
   alreadyReviewed(place){
     try { return Date.now() - Number(localStorage.getItem('last:'+place) || 0) < 864e5; } catch(e){ return false; }
@@ -162,7 +169,9 @@ async function submit(e){
     author: $('author').value.trim().slice(0,30) || 'Anonyme',
     date: new Date().toISOString()
   };
-  await Store.add(place, review);
+  $('send').disabled = true;
+  try { await Store.add(place, review); }
+  catch(err){ $('err').textContent = 'L’avis n’a pas pu être envoyé. Vérifiez votre connexion et réessayez.'; $('send').disabled = false; return; }
   Store.markReviewed(place);
   $('err').textContent = '';
   $('send').style.display = 'none';
@@ -172,7 +181,8 @@ async function submit(e){
 }
 
 async function render(){
-  const reviews = await Store.list(place);
+  let reviews = await Store.list(place);
+  if (reviews === null){ $('list').textContent = 'Impossible de charger les avis pour le moment.'; return; }
   const n = reviews.length;
   const avg = n ? reviews.reduce((s,r) => s + r.rating, 0) / n : 0;
   $('avg').textContent = n ? avg.toFixed(1).replace('.',',') + ' / 5' : '–';
