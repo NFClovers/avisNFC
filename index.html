@@ -7,9 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f6f3;--surface:#fff;--ink:#17262b;--muted:#5d6b70;--line:#dde2de;--accent:#0f766e;--accent-ink:#fff;--star:#e5a50a;--star-off:#b3bcb7;
+:root{--bg:#f3f3f3;--surface:#fff;--ink:#111;--muted:#666;--line:#dcdcdc;--accent:#111;--accent-ink:#fff;--star:#111;--star-off:#c6c6c6;--blobA:rgba(0,0,0,.13);--blobB:rgba(255,255,255,.95);
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a1d;--surface:#172429;--ink:#eef2f0;--muted:#9fb0b4;--line:#2a3b41;--accent:#2dd4bf;--accent-ink:#06211e;--star:#f5b82e;--star-off:#5a6c72}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0b;--surface:#151515;--ink:#f2f2f2;--muted:#9a9a9a;--line:#2a2a2a;--accent:#f2f2f2;--accent-ink:#0b0b0b;--star:#f2f2f2;--star-off:#444;--blobA:rgba(255,255,255,.10);--blobB:rgba(0,0,0,.8)}}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif}
@@ -47,9 +47,25 @@ textarea{min-height:7rem;resize:vertical}
 .gate{text-align:center;padding-top:20vh}
 .gate .ring{width:84px;height:84px;margin:0 auto 1.5rem;border:3px solid var(--accent);border-radius:50%;display:grid;place-items:center;font-size:2rem}
 .hidden{display:none!important}
+#bg{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+main{position:relative;z-index:1}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);will-change:transform}
+.b1{width:60vmax;height:60vmax;left:-15vmax;top:-20vmax;background:var(--blobA);animation:d1 34s ease-in-out infinite alternate}
+.b2{width:55vmax;height:55vmax;right:-20vmax;top:15vh;background:var(--blobB);animation:d2 42s ease-in-out infinite alternate}
+.b3{width:50vmax;height:50vmax;left:10vw;bottom:-25vmax;background:var(--blobA);animation:d3 38s ease-in-out infinite alternate}
+@keyframes d1{to{transform:translate(18vmax,12vmax) scale(1.15)}}
+@keyframes d2{to{transform:translate(-16vmax,-10vmax) scale(.9)}}
+@keyframes d3{to{transform:translate(14vmax,-14vmax) scale(1.2)}}
+.ripple{position:fixed;pointer-events:none;z-index:5;width:20px;height:20px;margin:-10px 0 0 -10px;border:1.5px solid var(--ink);border-radius:50%;opacity:.7;animation:rip .9s ease-out forwards}
+@keyframes rip{to{transform:scale(var(--s,5));opacity:0}}
+.stars button{transition:transform .15s}
+.stars button.on{animation:bump .3s}
+@keyframes bump{50%{transform:scale(1.3)}}
+@media (prefers-reduced-motion:reduce){.blob{animation:none}.ripple{display:none}.stars button.on{animation:none}}
 </style>
 </head>
 <body>
+<div id="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
 <main>
   <!-- Écran affiché si la page est ouverte sans passer par la carte NFC -->
   <section id="gate" class="gate hidden">
@@ -122,6 +138,22 @@ const $ = id => document.getElementById(id);
 const LABELS = ['', 'Décevant', 'Moyen', 'Bien', 'Très bien', 'Excellent'];
 let rating = 0;
 
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function burst(el, rings, scale){
+  if (REDUCED) return;
+  const r = el.getBoundingClientRect();
+  const x = r.left + r.width / 2, y = r.top + r.height / 2;
+  for (let i = 0; i < rings; i++){
+    const d = document.createElement('span');
+    d.className = 'ripple';
+    d.style.left = x + 'px'; d.style.top = y + 'px';
+    d.style.setProperty('--s', scale + i * 2);
+    d.style.animationDelay = (i * 140) + 'ms';
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 1300);
+  }
+}
+
 if (!place) { $('gate').classList.remove('hidden'); }
 else { start(); }
 
@@ -153,6 +185,7 @@ function setRating(n){
   });
   $('hint').textContent = LABELS[n];
   $('send').disabled = false;
+  burst($('stars').children[n - 1], 1, 5);
 }
 
 function lockForm(){
@@ -174,6 +207,7 @@ async function submit(e){
   try { await Store.add(place, review); }
   catch(err){ $('err').textContent = 'L’avis n’a pas pu être envoyé. Vérifiez votre connexion et réessayez.'; $('send').disabled = false; return; }
   Store.markReviewed(place);
+  burst($('send'), 3, 14);
   $('err').textContent = '';
   $('send').style.display = 'none';
   $('thanks').style.display = 'block';
