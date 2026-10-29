@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Administration · Avis NFC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f3f3;--surface:#fff;--ink:#111;--muted:#666;--line:#dcdcdc;--accent:#111;--accent-ink:#fff;--danger:#b42318;--soft:#ececec;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0b;--surface:#151515;--ink:#f2f2f2;--muted:#9a9a9a;--line:#2a2a2a;--accent:#f2f2f2;--accent-ink:#0b0b0b;--danger:#f97066;--soft:#1f1f1f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.num{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-height:1.15}
+h1{font-size:1.5rem}h2{font-size:1.2rem}
+.wrap{max-width:68rem;margin:0 auto;padding:1.25rem 1rem 4rem}
+.top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.muted{color:var(--muted)}
+nav{display:flex;gap:.4rem;margin:1.2rem 0;flex-wrap:wrap}
+nav button{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:.5rem 1rem;border-radius:99px;font:inherit;cursor:pointer}
+nav button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.1rem;margin-top:1rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.8rem}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.9rem}
+.kpi .num{font-size:1.9rem;font-weight:700}
+.kpi span{color:var(--muted);font-size:.82rem}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500;white-space:nowrap}
+td.c{max-width:22rem;overflow-wrap:anywhere;white-space:pre-wrap}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:0 .55rem;font-size:.75rem;color:var(--muted);margin:0 .25rem .2rem 0}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);padding:.55rem 1rem;border-radius:10px;font:600 .9rem Inter,system-ui,sans-serif;cursor:pointer}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.btn.del{background:none;color:var(--danger);border:1px solid var(--line)}
+.btn.sm{padding:.25rem .6rem;font-size:.8rem}
+.btn:disabled{opacity:.5}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end}
+label{display:block;font-size:.8rem;color:var(--muted)}
+input,select,textarea{display:block;margin-top:.25rem;padding:.55rem .65rem;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:inherit;min-width:9rem}
+textarea{width:100%;min-height:3.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:.8rem}
+.grid input{width:100%}
+.err{color:var(--danger);min-height:1.3em;margin:.6rem 0 0}
+.login{max-width:22rem;margin:18vh auto 0}
+.login input{width:100%;margin-bottom:.8rem}
+.hidden{display:none!important}
+:is(button,input,select,textarea,a):focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section id="login" class="login card">
+    <h1>Administration</h1>
+    <p class="muted">Connectez-vous avec votre compte administrateur.</p>
+    <form id="loginForm">
+      <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required>
+      <label for="pwd">Mot de passe</label><input id="pwd" type="password" autocomplete="current-password" required>
+      <button class="btn" style="width:100%" id="loginBtn">Se connecter</button>
+      <p class="err" id="loginErr" role="alert"></p>
+    </form>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="top">
+      <div><h1>Administration des avis</h1><span class="muted" id="who"></span></div>
+      <div class="row"><button class="btn ghost" id="refresh">Actualiser</button><button class="btn ghost" id="logout">Se déconnecter</button></div>
+    </div>
+    <nav id="tabs">
+      <button data-t="over" class="on">Vue d’ensemble</button>
+      <button data-t="reviews">Avis</button>
+      <button data-t="shops">Commerces</button>
+    </nav>
+    <p class="err" id="appErr" role="alert"></p>
+
+    <div id="t-over">
+      <div class="kpis" id="kpis"></div>
+      <div class="card"><h2>Par commerce</h2><div class="scroll"><table id="byShop"></table></div></div>
+    </div>
+
+    <div id="t-reviews" class="hidden">
+      <div class="card">
+        <div class="row">
+          <label>Commerce<select id="fShop"></select></label>
+          <label>Note<select id="fRating"><option value="">Toutes</option><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
+          <label style="flex:1">Recherche<input id="fText" type="search" placeholder="Mot dans un commentaire ou un prénom" style="width:100%"></label>
+          <button class="btn ghost" id="csv">Exporter en CSV</button>
+        </div>
+        <p class="muted" id="rCount"></p>
+        <div class="scroll"><table id="rTable"></table></div>
+      </div>
+    </div>
+
+    <div id="t-shops" class="hidden">
+      <form class="card" id="shopForm">
+        <h2 id="shopTitle">Ajouter un commerce</h2>
+        <div class="grid" style="margin-top:.8rem">
+          <label>Identifiant dans le lien *<input id="sSlug" required maxlength="60" placeholder="Le-Petit-Bistrot"></label>
+          <label>Nom du commerce *<input id="sName" required maxlength="80"></label>
+          <label>Contact (nom, e-mail, tél.)<input id="sContact" maxlength="120"></label>
+          <label>Lien d’avis Google<input id="sGoogle" type="url" placeholder="https://…"></label>
+          <label>Cartes vendues<input id="sCards" type="number" min="0" value="0"></label>
+          <label>Statut<select id="sActive"><option value="true">Actif</option><option value="false">Inactif</option></select></label>
+        </div>
+        <label style="margin-top:.8rem">Notes internes<textarea id="sNotes" maxlength="500"></textarea></label>
+        <div class="row" style="margin-top:.8rem"><button class="btn" id="shopSave">Enregistrer</button><button type="button" class="btn ghost hidden" id="shopCancel">Annuler la modification</button></div>
+        <p class="err" id="shopErr" role="alert"></p>
+      </form>
+      <div class="card"><h2>Mes commerces</h2><div class="scroll"><table id="sTable"></table></div></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const CFG = {
+  url: 'https://nkhxyzrvyhsmicbxrdgr.supabase.co',
+  key: 'sb_publishable_XVJdnraDntLIytI3K09Hsg_wHDVexBf'   // clé publique : la sécurité vient des règles Supabase + connexion
+};
+const $ = id => document.getElementById(id);
+const fmt1 = n => n.toFixed(1).replace('.', ',');
+const fdate = iso => new Date(iso).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+function h(tag, props, ...kids){
+  const e = document.createElement(tag);
+  Object.entries(props || {}).forEach(([k, v]) => { if (k === 'class') e.className = v; else if (k.startsWith('on')) e[k] = v; else e.setAttribute(k, v); });
+  kids.flat().forEach(k => e.append(k instanceof Node ? k : document.createTextNode(k ?? '')));
+  return e;
+}
+
+/* ---------- Session & API ---------- */
+let session = null;
+try { session = JSON.parse(localStorage.getItem('admin-session') || 'null'); } catch(e){}
+const saveSession = s => { session = s; try { s ? localStorage.setItem('admin-session', JSON.stringify(s)) : localStorage.removeItem('admin-session'); } catch(e){} };
+
+async function auth(grant, body){
+  const res = await fetch(CFG.url + '/auth/v1/token?grant_type=' + grant, { method: 'POST', headers: { apikey: CFG.key, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) return null;
+  const d = await res.json();
+  return { access_token: d.access_token, refresh_token: d.refresh_token, email: (d.user && d.user.email) || (session && session.email) || '' };
+}
+async function api(path, opts = {}, retry = true){
+  const res = await fetch(CFG.url + path, Object.assign({}, opts, { headers: Object.assign(
+    { apikey: CFG.key, 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token }, opts.headers || {}) }));
+  if (res.status === 401 && retry){
+    const s = await auth('refresh_token', { refresh_token: session.refresh_token });
+    if (s){ saveSession(s); return api(path, opts, false); }
+    logout(); throw new Error('Session expirée, reconnectez-vous.');
+  }
+  if (!res.ok) throw new Error('Erreur ' + res.status + ' : ' + (await res.text()).slice(0, 200));
+  return res.status === 204 ? null : res.json();
+}
+function logout(){ saveSession(null); location.reload(); }
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('loginErr').textContent = ''; $('loginBtn').disabled = true;
+  const s = await auth('password', { email: $('email').value.trim(), password: $('pwd').value });
+  $('loginBtn').disabled = false;
+  if (!s){ $('loginErr').textContent = 'E-mail ou mot de passe incorrect.'; return; }
+  saveSession(s); enter();
+});
+$('logout').onclick = logout;
+$('refresh').onclick = loadAll;
+
+async function enter(){
+  try {
+    const ok = await api('/rest/v1/rpc/is_admin', { method: 'POST', body: '{}' });
+    if (ok !== true){ saveSession(null); $('login').classList.remove('hidden'); $('app').classList.add('hidden'); $('loginErr').textContent = 'Ce compte n’est pas autorisé comme administrateur.'; return; }
+  } catch(e){ saveSession(null); $('loginErr').textContent = 'Connexion impossible : ' + e.message; return; }
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden');
+  $('who').textContent = session.email;
+  loadAll();
+}
+if (session) enter();
+
+/* ---------- Données ---------- */
+let reviews = [], shops = [];
+async function loadAll(){
+  $('appErr').textContent = '';
+  try {
+    [reviews, shops] = await Promise.all([
+      api('/rest/v1/reviews?select=*&order=created_at.desc&limit=5000'),
+      api('/rest/v1/shops?select=*&order=created_at.desc')
+    ]);
+    reviews.forEach(r => r.details = r.details || {});
+    renderOver(); fillShopFilter(); renderReviews(); renderShops();
+  } catch(e){ $('appErr').textContent = e.message; }
+}
+const shopBySlug = () => Object.fromEntries(shops.map(s => [s.slug, s]));
+const nameOf = place => (shopBySlug()[place] || {}).name || place;
+const avgOf = list => list.length ? list.reduce((s, r) => s + r.rating, 0) / list.length : 0;
+const nfcLink = slug => new URL('./', location.href).href + '?r=' + encodeURIComponent(slug);
+
+/* ---------- Onglets ---------- */
+$('tabs').addEventListener('click', e => {
+  const t = e.target.dataset && e.target.dataset.t; if (!t) return;
+  [...$('tabs').children].forEach(b => b.classList.toggle('on', b === e.target));
+  ['over', 'reviews', 'shops'].forEach(x => $('t-' + x).classList.toggle('hidden', x !== t));
+});
+
+/* ---------- Vue d'ensemble ---------- */
+function renderOver(){
+  const week = reviews.filter(r => Date.now() - new Date(r.created_at) < 7 * 864e5).length;
+  const kpis = [
+    [reviews.length, 'avis au total'], [reviews.length ? fmt1(avgOf(reviews)) : '–', 'note moyenne'], [week, 'avis sur 7 jours'],
+    [shops.filter(s => s.active).length, 'commerces actifs'], [shops.reduce((a, s) => a + (s.card_count || 0), 0), 'cartes vendues']
+  ];
+  $('kpis').replaceChildren(...kpis.map(([v, l]) => h('div', { class: 'kpi' }, h('div', { class: 'num' }, String(v)), h('span', {}, l))));
+
+  const groups = {};
+  reviews.forEach(r => (groups[r.place] = groups[r.place] || []).push(r));
+  const slugs = new Set([...Object.keys(groups), ...shops.map(s => s.slug)]);
+  const map = shopBySlug();
+  const rows = [...slugs].map(p => ({ p, list: groups[p] || [], shop: map[p] })).sort((a, b) => b.list.length - a.list.length);
+  const head = h('tr', {}, ...['Commerce', 'Avis', 'Moyenne', 'Dernier avis', ''].map(t => h('th', {}, t)));
+  $('byShop').replaceChildren(head, ...rows.map(({ p, list, shop }) => h('tr', {},
+    h('td', {}, shop ? shop.name : p, shop ? '' : h('span', { class: 'tag', style: 'margin-left:.4rem' }, 'non référencé')),
+    h('td', {}, String(list.length)),
+    h('td', {}, list.length ? fmt1(avgOf(list)) + ' / 5' : '–'),
+    h('td', {}, list.length ? fdate(list[0].created_at) : '–'),
+    h('td', {}, shop ? '' : h('button', { class: 'btn ghost sm', onclick: () => startShop({ slug: p, name: p.replace(/[-_]+/g, ' ') }) }, 'Ajouter aux commerces'))
+  )));
+}
+
+/* ---------- Avis ---------- */
+function fillShopFilter(){
+  const cur = $('fShop').value;
+  const places = [...new Set([...reviews.map(r => r.place), ...shops.map(s => s.slug)])].sort();
+  $('fShop').replaceChildren(h('option', { value: '' }, 'Tous'), ...places.map(p => h('option', { value: p }, nameOf(p))));
+  $('fShop').value = places.includes(cur) ? cur : '';
+}
+function filtered(){
+  const s = $('fShop').value, n = $('fRating').value, q = $('fText').value.trim().toLowerCase();
+  return reviews.filter(r => (!s || r.place === s) && (!n || r.rating === +n) &&
+    (!q || (r.comment || '').toLowerCase().includes(q) || (r.author || '').toLowerCase().includes(q)));
+}
+function renderReviews(){
+  const list = filtered();
+  $('rCount').textContent = list.length + ' avis affiché' + (list.length > 1 ? 's' : '');
+  const head = h('tr', {}, ...['Date', 'Commerce', 'Note', 'Détails', 'Commentaire', 'Prénom', ''].map(t => h('th', {}, t)));
+  $('rTable').replaceChildren(head, ...list.slice(0, 300).map(r => h('tr', {},
+    h('td', {}, fdate(r.created_at)), h('td', {}, nameOf(r.place)),
+    h('td', {}, '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)),
+    h('td', {}, ...Object.entries(r.details).map(([k, v]) => h('span', { class: 'tag' }, k + ' ' + v + '/5'))),
+    h('td', { class: 'c' }, r.comment || '—'), h('td', {}, r.author || 'Anonyme'),
+    h('td', {}, h('button', { class: 'btn del sm', onclick: () => delReview(r) }, 'Supprimer'))
+  )));
+  if (list.length > 300) $('rCount').textContent += ' (300 premiers affichés, utilisez l’export pour tout avoir)';
+}
+['fShop', 'fRating'].forEach(i => $(i).addEventListener('change', renderReviews));
+$('fText').addEventListener('input', renderReviews);
+async function delReview(r){
+  if (!confirm('Supprimer définitivement cet avis de ' + (r.author || 'Anonyme') + ' ?')) return;
+  try { await api('/rest/v1/reviews?id=eq.' + r.id, { method: 'DELETE', headers: { Prefer: 'return=minimal' } }); await loadAll(); }
+  catch(e){ $('appErr').textContent = e.message; }
+}
+$('csv').onclick = () => {
+  const safe = v => { v = String(v ?? '').replace(/"/g, '""'); return '"' + (/^[=+\-@\t\r]/.test(v) ? "'" + v : v) + '"'; };
+  const lines = [['Date', 'Commerce', 'Note', 'Détails', 'Commentaire', 'Prénom'].join(';')].concat(filtered().map(r =>
+    [fdate(r.created_at), nameOf(r.place), r.rating, Object.entries(r.details).map(([k, v]) => k + ':' + v).join(' | '), r.comment, r.author].map(safe).join(';')));
+  const a = h('a', { href: URL.createObjectURL(new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' })), download: 'avis.csv' });
+  document.body.append(a); a.click(); a.remove();
+};
+
+/* ---------- Commerces ---------- */
+let editId = null;
+const cleanSlug = s => s.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '');
+function startShop(s){
+  editId = s.id || null;
+  $('shopTitle').textContent = editId ? 'Modifier « ' + s.name + ' »' : 'Ajouter un commerce';
+  $('sSlug').value = s.slug || ''; $('sName').value = s.name || ''; $('sContact').value = s.contact || '';
+  $('sGoogle').value = s.google_url || ''; $('sCards').value = s.card_count || 0; $('sNotes').value = s.notes || '';
+  $('sActive').value = String(s.active !== false); $('shopCancel').classList.toggle('hidden', !editId);
+  document.querySelector('[data-t="shops"]').click(); $('sName').focus(); scrollTo({ top: 0, behavior: 'smooth' });
+}
+$('shopCancel').onclick = () => { $('shopForm').reset(); startShop({}); };
+$('shopForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('shopErr').textContent = '';
+  const slug = cleanSlug($('sSlug').value);
+  if (!slug){ $('shopErr').textContent = 'Identifiant invalide.'; return; }
+  const body = { slug, name: $('sName').value.trim(), contact: $('sContact').value.trim() || null, google_url: $('sGoogle').value.trim() || null,
+    card_count: Math.max(0, parseInt($('sCards').value, 10) || 0), notes: $('sNotes').value.trim() || null, active: $('sActive').value === 'true' };
+  try {
+    await api('/rest/v1/shops' + (editId ? '?id=eq.' + editId : ''), { method: editId ? 'PATCH' : 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(body) });
+    $('shopForm').reset(); startShop({}); await loadAll();
+  } catch(err){ $('shopErr').textContent = /23505|duplicate/.test(err.message) ? 'Cet identifiant existe déjà.' : err.message; }
+});
+function renderShops(){
+  const head = h('tr', {}, ...['Commerce', 'Lien à écrire sur la carte', 'Cartes', 'Avis', 'Statut', ''].map(t => h('th', {}, t)));
+  $('sTable').replaceChildren(head, ...shops.map(s => {
+    const n = reviews.filter(r => r.place === s.slug).length;
+    return h('tr', {},
+      h('td', {}, h('strong', {}, s.name), h('br'), h('span', { class: 'muted' }, s.contact || ''), s.notes ? h('div', { class: 'muted' }, s.notes) : ''),
+      h('td', { class: 'c' }, nfcLink(s.slug), h('br'), h('button', { class: 'btn ghost sm', onclick: ev => { navigator.clipboard.writeText(nfcLink(s.slug)).then(() => ev.target.textContent = 'Copié ✓'); } }, 'Copier le lien')),
+      h('td', {}, String(s.card_count || 0)), h('td', {}, String(n)), h('td', {}, s.active ? 'Actif' : 'Inactif'),
+      h('td', {}, h('button', { class: 'btn ghost sm', onclick: () => startShop(s) }, 'Modifier'), ' ',
+        h('button', { class: 'btn del sm', onclick: () => delShop(s) }, 'Supprimer')));
+  }));
+  if (!shops.length) $('sTable').append(h('tr', {}, h('td', { colspan: 6, class: 'muted' }, 'Aucun commerce pour l’instant.')));
+}
+async function delShop(s){
+  if (!confirm('Supprimer le commerce « ' + s.name + ' » ? Ses avis sont conservés.')) return;
+  try { await api('/rest/v1/shops?id=eq.' + s.id, { method: 'DELETE', headers: { Prefer: 'return=minimal' } }); await loadAll(); }
+  catch(e){ $('appErr').textContent = e.message; }
+}
+</script>
+</body>
+</html>
