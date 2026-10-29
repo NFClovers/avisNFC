@@ -7,9 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f6f3;--surface:#fff;--ink:#17262b;--muted:#5d6b70;--line:#dde2de;--accent:#0f766e;--accent-ink:#fff;--star:#e5a50a;--star-off:#cfd5d1;
+:root{--bg:#f5f6f3;--surface:#fff;--ink:#17262b;--muted:#5d6b70;--line:#dde2de;--accent:#0f766e;--accent-ink:#fff;--star:#e5a50a;--star-off:#b3bcb7;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a1d;--surface:#172429;--ink:#eef2f0;--muted:#9fb0b4;--line:#2a3b41;--accent:#2dd4bf;--accent-ink:#06211e;--star:#f5b82e;--star-off:#3a4b51}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a1d;--surface:#172429;--ink:#eef2f0;--muted:#9fb0b4;--line:#2a3b41;--accent:#2dd4bf;--accent-ink:#06211e;--star:#f5b82e;--star-off:#5a6c72}}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif}
@@ -119,11 +119,12 @@ const params = new URLSearchParams(location.search);
 const place = (params.get('r') || '').trim().slice(0,60);
 const $ = id => document.getElementById(id);
 
+const LABELS = ['', 'Décevant', 'Moyen', 'Bien', 'Très bien', 'Excellent'];
+let rating = 0;
+
 if (!place) { $('gate').classList.remove('hidden'); }
 else { start(); }
 
-const LABELS = ['', 'Décevant', 'Moyen', 'Bien', 'Très bien', 'Excellent'];
-let rating = 0;
 
 function start(){
   $('app').classList.remove('hidden');
