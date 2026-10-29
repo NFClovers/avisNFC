@@ -148,7 +148,8 @@ async function api(path, opts = {}, retry = true){
     logout(); throw new Error('Session expirée, reconnectez-vous.');
   }
   if (!res.ok) throw new Error('Erreur ' + res.status + ' : ' + (await res.text()).slice(0, 200));
-  return res.status === 204 ? null : res.json();
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
 }
 function logout(){ saveSession(null); location.reload(); }
 
