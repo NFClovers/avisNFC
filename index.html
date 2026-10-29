@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Donnez votre avis</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E★%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -12,43 +13,60 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0b;--surface:#151515;--ink:#f2f2f2;--muted:#9a9a9a;--line:#2a2a2a;--accent:#f2f2f2;--accent-ink:#0b0b0b;--star:#f2f2f2;--star-off:#444;--blobA:rgba(255,255,255,.10);--blobB:rgba(0,0,0,.8)}}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif}
-main{max-width:34rem;margin:0 auto;padding:1.5rem 1.25rem 3rem}
-h1,h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.1;margin:0}
-h1{font-size:2.2rem;font-weight:700;letter-spacing:-.02em}
-h2{font-size:1.25rem;font-weight:700}
-.sub{color:var(--muted);margin:.5rem 0 0}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.25rem;margin-top:1.5rem}
-.stars{display:flex;gap:.25rem;margin:.75rem 0 .25rem}
-.stars button{flex:1;border:0;background:none;padding:.25rem 0;font-size:2.6rem;line-height:1;color:var(--star-off);cursor:pointer;border-radius:10px}
-.stars button.on{color:var(--star)}
-.hint{min-height:1.4em;color:var(--muted);font-size:.9rem;margin:0}
-label{display:block;font-weight:500;margin-top:1rem}
-textarea,input{width:100%;margin-top:.35rem;padding:.75rem;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{position:relative;z-index:1;max-width:36rem;margin:0 auto;padding:2rem 1.25rem 4rem}
+h1,h2,.num{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.1;margin:0}
+h1{font-size:2.4rem;font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.15rem;font-weight:700}
+.eyebrow{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem}
+.sub{color:var(--muted);margin:.6rem 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.4rem;margin-top:1.5rem}
+.stars{display:flex;gap:.2rem;margin:.9rem 0 .2rem}
+.stars button{flex:1;border:0;background:none;padding:.2rem 0;font-size:2.7rem;line-height:1;color:var(--star-off);cursor:pointer;border-radius:10px;transition:transform .15s}
+.stars button.on,.mini button.on{color:var(--star)}
+.stars button.on,.mini button.on{animation:bump .3s}
+.hint{min-height:1.4em;color:var(--muted);font-size:.92rem;margin:0}
+.sep{border:0;border-top:1px solid var(--line);margin:1.3rem 0}
+.crit{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.35rem 0}
+.crit span{font-size:.95rem}
+.mini{display:flex;gap:.1rem}
+.mini button{border:0;background:none;padding:.15rem .2rem;font-size:1.7rem;line-height:1;color:var(--star-off);cursor:pointer;border-radius:8px}
+label{display:block;font-weight:500;margin-top:1.1rem}
+.opt{color:var(--muted);font-weight:400}
+textarea,input[type=text]{width:100%;margin-top:.4rem;padding:.8rem;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:inherit;font:inherit}
 textarea{min-height:7rem;resize:vertical}
-:is(button,textarea,input):focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.send{width:100%;margin-top:1.25rem;padding:.9rem;border:0;border-radius:12px;background:var(--accent);color:var(--accent-ink);font:700 1.05rem "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
-.send:disabled{opacity:.45;cursor:not-allowed}
-.err{color:#c2410c;font-size:.9rem;min-height:1.3em;margin:.5rem 0 0}
-.summary{display:flex;align-items:baseline;gap:.6rem;margin-top:2rem}
-.avg{font:700 2.4rem "Bricolage Grotesque",system-ui,sans-serif}
+small.cnt{display:block;text-align:right;color:var(--muted);font-size:.8rem;margin-top:.25rem}
+:is(button,a,textarea,input):focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.btn{display:block;width:100%;margin-top:1rem;padding:.95rem;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font:700 1.05rem "Bricolage Grotesque",system-ui,sans-serif;text-align:center;text-decoration:none;cursor:pointer}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;padding:.2rem}
+.err{color:#c2410c;font-size:.9rem;min-height:1.3em;margin:.6rem 0 0}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+#thanks{display:none;text-align:center}
+#thanks .tick{font-size:2.2rem}
+#countdown{color:var(--muted);font-size:.9rem;margin:.9rem 0 0}
+.summary{display:flex;align-items:baseline;gap:.7rem;margin-top:2.2rem}
+.avg{font-size:2.8rem;font-weight:700}
 .count{color:var(--muted)}
-.bars{margin:.75rem 0 0;display:grid;gap:.3rem;font-size:.85rem;color:var(--muted)}
-.bar{display:grid;grid-template-columns:1.2rem 1fr 1.5rem;gap:.5rem;align-items:center}
+.bars{display:grid;gap:.4rem;margin:1rem 0 0;font-size:.85rem;color:var(--muted)}
+.bar{display:grid;grid-template-columns:7.5rem 1fr 2rem;gap:.6rem;align-items:center}
+.bar.s{grid-template-columns:1rem 1fr 1.6rem}
 .bar i{display:block;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
-.bar b{display:block;height:100%;background:var(--star)}
-.review{border-top:1px solid var(--line);padding:1rem 0}
-.review:first-child{border-top:0}
+.bar b{display:block;height:100%;background:var(--ink)}
+.bar em{font-style:normal;text-align:right}
+.review{border-top:1px solid var(--line);padding:1.05rem 0}
+.review:first-child{border-top:0;padding-top:0}
 .rhead{display:flex;justify-content:space-between;gap:1rem;color:var(--muted);font-size:.85rem}
-.rstars{color:var(--star);letter-spacing:.1em}
-.review p{margin:.35rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
-.empty{color:var(--muted)}
-.thanks{display:none;text-align:center;padding:1rem 0}
+.rstars{color:var(--ink);letter-spacing:.08em}
+.review p{margin:.4rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
+.chips span{border:1px solid var(--line);border-radius:99px;padding:.05rem .6rem;font-size:.78rem;color:var(--muted)}
+.empty{color:var(--muted);margin:0}
 .gate{text-align:center;padding-top:20vh}
-.gate .ring{width:84px;height:84px;margin:0 auto 1.5rem;border:3px solid var(--accent);border-radius:50%;display:grid;place-items:center;font-size:2rem}
+.gate .ring{width:84px;height:84px;margin:0 auto 1.5rem;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-size:2rem}
 .hidden{display:none!important}
 #bg{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-main{position:relative;z-index:1}
 .blob{position:absolute;border-radius:50%;filter:blur(70px);will-change:transform}
 .b1{width:60vmax;height:60vmax;left:-15vmax;top:-20vmax;background:var(--blobA);animation:d1 34s ease-in-out infinite alternate}
 .b2{width:55vmax;height:55vmax;right:-20vmax;top:15vh;background:var(--blobB);animation:d2 42s ease-in-out infinite alternate}
@@ -58,16 +76,13 @@ main{position:relative;z-index:1}
 @keyframes d3{to{transform:translate(14vmax,-14vmax) scale(1.2)}}
 .ripple{position:fixed;pointer-events:none;z-index:5;width:20px;height:20px;margin:-10px 0 0 -10px;border:1.5px solid var(--ink);border-radius:50%;opacity:.7;animation:rip .9s ease-out forwards}
 @keyframes rip{to{transform:scale(var(--s,5));opacity:0}}
-.stars button{transition:transform .15s}
-.stars button.on{animation:bump .3s}
 @keyframes bump{50%{transform:scale(1.3)}}
-@media (prefers-reduced-motion:reduce){.blob{animation:none}.ripple{display:none}.stars button.on{animation:none}}
+@media (prefers-reduced-motion:reduce){.blob{animation:none}.ripple{display:none}.stars button.on,.mini button.on{animation:none}}
 </style>
 </head>
 <body>
 <div id="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
 <main>
-  <!-- Écran affiché si la page est ouverte sans passer par la carte NFC -->
   <section id="gate" class="gate hidden">
     <div class="ring" aria-hidden="true">📲</div>
     <h1>Approchez votre téléphone de la carte NFC</h1>
@@ -75,185 +90,283 @@ main{position:relative;z-index:1}
   </section>
 
   <section id="app" class="hidden">
+    <p class="eyebrow">Votre avis compte</p>
     <h1 id="name"></h1>
-    <p class="sub">Votre avis aide les autres clients. Cela prend 30 secondes.</p>
+    <p class="sub">Cela prend moins d’une minute.</p>
 
-    <form id="form" class="panel" novalidate>
-      <h2>Votre note</h2>
-      <div class="stars" id="stars" role="radiogroup" aria-label="Note sur 5"></div>
+    <form id="form" class="card" novalidate>
+      <h2>Votre note globale</h2>
+      <div class="stars" id="stars"></div>
       <p class="hint" id="hint" aria-live="polite"></p>
 
-      <label for="comment">Votre commentaire</label>
-      <textarea id="comment" maxlength="600" placeholder="Ce que vous avez aimé, ce qui pourrait être mieux…"></textarea>
+      <hr class="sep">
+      <h2>Détaillez <span class="opt">(facultatif)</span></h2>
+      <div id="crits"></div>
 
-      <label for="author">Votre prénom (facultatif)</label>
-      <input id="author" maxlength="30" autocomplete="given-name">
+      <hr class="sep" style="margin-bottom:0">
+      <label for="comment">Votre commentaire <span class="opt">(facultatif)</span></label>
+      <textarea id="comment" maxlength="600" placeholder="Ce que vous avez aimé, ce qui pourrait être mieux…"></textarea>
+      <small class="cnt" id="cnt">0 / 600</small>
+
+      <label for="author">Votre prénom <span class="opt">(facultatif)</span></label>
+      <input id="author" type="text" maxlength="30" autocomplete="given-name">
+
+      <div class="hp" aria-hidden="true"><label>Ne pas remplir<input id="website" type="text" tabindex="-1" autocomplete="off"></label></div>
 
       <p class="err" id="err" role="alert"></p>
-      <button class="send" id="send" type="submit" disabled>Publier mon avis</button>
-      <div class="thanks" id="thanks"><h2>Merci pour votre avis !</h2><p class="sub">Il est maintenant visible ci-dessous.</p></div>
+      <button class="btn" id="send" type="submit" disabled>Publier mon avis</button>
+
+      <div id="thanks" aria-live="polite">
+        <div class="tick" aria-hidden="true">✓</div>
+        <h2 id="thanksTitle">Merci pour votre avis !</h2>
+        <p class="sub" id="thanksText">Il est maintenant visible plus bas.</p>
+        <div id="ggl" class="hidden">
+          <p class="sub">Dernière étape : partagez-le aussi sur Google, cela aide beaucoup le commerce.</p>
+          <a class="btn" id="gglBtn" rel="noopener">Aller sur Google</a>
+          <button class="btn ghost" id="copyBtn" type="button">Copier mon commentaire</button>
+          <p id="countdown"></p>
+        </div>
+      </div>
     </form>
 
-    <div class="summary"><span class="avg" id="avg">–</span><span class="count" id="count"></span></div>
+    <div class="summary"><span class="avg num" id="avg">–</span><span class="count" id="count"></span></div>
     <div class="bars" id="bars"></div>
-    <div class="panel" id="list"></div>
+    <div class="bars" id="critBars" style="margin-top:1.2rem"></div>
+    <div class="card" id="list"><p class="empty">Chargement des avis…</p></div>
+    <button class="btn ghost hidden" id="more" type="button">Voir plus d’avis</button>
   </section>
 </main>
 
 <script>
-/* STOCKAGE : les avis sont enregistrés dans Supabase et visibles par tous. */
-const SUPABASE_URL = 'https://nkhxyzrvyhsmicbxrdgr.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_XVJdnraDntLIytI3K09Hsg_wHDVexBf'; // clé publique, faite pour être visible
+/* ================= RÉGLAGES ================= */
+const CONFIG = {
+  supabaseUrl: 'https://nkhxyzrvyhsmicbxrdgr.supabase.co',
+  supabaseKey: 'sb_publishable_XVJdnraDntLIytI3K09Hsg_wHDVexBf', // clé publique, faite pour être visible
+  googleUrl: '',          // ← collez ici le lien d’avis Google, entre les guillemets
+  redirectSeconds: 8,     // délai avant la redirection vers Google
+  pageSize: 8,            // avis affichés par page
+  criteria: [
+    { id: 'service', label: 'Service' },
+    { id: 'qualite', label: 'Qualité' },
+    { id: 'prix',    label: 'Rapport qualité/prix' }
+  ]
+};
+
+/* ================= STOCKAGE (Supabase) ================= */
 const Store = {
-  headers(){ return { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' }; },
+  headers(){ return { 'apikey': CONFIG.supabaseKey, 'Content-Type': 'application/json' }; },
   async list(place){
+    const base = CONFIG.supabaseUrl + '/rest/v1/reviews?place=eq.' + encodeURIComponent(place)
+      + '&order=created_at.desc&limit=300&select=';
     try {
-      const url = SUPABASE_URL + '/rest/v1/reviews?select=rating,comment,author,created_at'
-        + '&place=eq.' + encodeURIComponent(place) + '&order=created_at.desc&limit=200';
-      const res = await fetch(url, { headers: this.headers() });
+      let res = await fetch(base + 'rating,comment,author,created_at,details', { headers: this.headers() });
+      if (!res.ok) res = await fetch(base + 'rating,comment,author,created_at', { headers: this.headers() });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const rows = await res.json();
-      return rows.map(r => ({ rating: r.rating, comment: r.comment || '', author: r.author || 'Anonyme', date: r.created_at }));
+      return (await res.json()).map(r => ({
+        rating: r.rating, comment: r.comment || '', author: r.author || 'Anonyme',
+        date: r.created_at, details: r.details || {}
+      }));
     } catch(e){ return null; }
   },
-  async add(place, review){
-    const res = await fetch(SUPABASE_URL + '/rest/v1/reviews', {
-      method: 'POST',
-      headers: Object.assign({ 'Prefer': 'return=minimal' }, this.headers()),
-      body: JSON.stringify({ place, rating: review.rating, comment: review.comment, author: review.author })
-    });
+  async add(place, rv){
+    const url = CONFIG.supabaseUrl + '/rest/v1/reviews';
+    const opts = body => ({ method: 'POST', headers: Object.assign({ 'Prefer': 'return=minimal' }, this.headers()), body: JSON.stringify(body) });
+    const base = { place, rating: rv.rating, comment: rv.comment, author: rv.author };
+    let res = await fetch(url, opts(Object.assign({ details: rv.details }, base)));
+    if (!res.ok) res = await fetch(url, opts(base)); // si la colonne « details » n’existe pas encore
     if (!res.ok) throw new Error('HTTP ' + res.status);
   },
   alreadyReviewed(place){
-    try { return Date.now() - Number(localStorage.getItem('last:'+place) || 0) < 864e5; } catch(e){ return false; }
+    try { return Date.now() - Number(localStorage.getItem('last:' + place) || 0) < 864e5; } catch(e){ return false; }
   },
-  markReviewed(place){ try { localStorage.setItem('last:'+place, String(Date.now())); } catch(e){} }
+  markReviewed(place){ try { localStorage.setItem('last:' + place, String(Date.now())); } catch(e){} }
 };
 
-/* Le lien écrit sur la carte NFC : https://votre-site.fr/?r=Chez-Marco */
-const params = new URLSearchParams(location.search);
-const place = (params.get('r') || '').trim().slice(0,60);
+/* ================= OUTILS ================= */
 const $ = id => document.getElementById(id);
-
-const LABELS = ['', 'Décevant', 'Moyen', 'Bien', 'Très bien', 'Excellent'];
-let rating = 0;
-
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LABELS = ['', 'Décevant', 'Moyen', 'Bien', 'Très bien', 'Excellent'];
+const fmt1 = n => n.toFixed(1).replace('.', ',');
+const stars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+let rating = 0, details = {}, allReviews = [], shown = 0, timer = null;
+
 function burst(el, rings, scale){
-  if (REDUCED) return;
-  const r = el.getBoundingClientRect();
-  const x = r.left + r.width / 2, y = r.top + r.height / 2;
+  if (REDUCED || !el) return;
+  const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
   for (let i = 0; i < rings; i++){
     const d = document.createElement('span');
-    d.className = 'ripple';
-    d.style.left = x + 'px'; d.style.top = y + 'px';
-    d.style.setProperty('--s', scale + i * 2);
-    d.style.animationDelay = (i * 140) + 'ms';
-    document.body.appendChild(d);
-    setTimeout(() => d.remove(), 1300);
+    d.className = 'ripple'; d.style.left = x + 'px'; d.style.top = y + 'px';
+    d.style.setProperty('--s', scale + i * 2); d.style.animationDelay = (i * 140) + 'ms';
+    document.body.appendChild(d); setTimeout(() => d.remove(), 1300);
   }
 }
 
-if (!place) { $('gate').classList.remove('hidden'); }
-else { start(); }
+function dateLabel(iso){
+  const d = new Date(iso), days = Math.floor((Date.now() - d) / 864e5);
+  if (days < 1) return 'Aujourd’hui';
+  if (days < 2) return 'Hier';
+  if (days < 30) return 'Il y a ' + days + ' jours';
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 
-
-function start(){
-  $('app').classList.remove('hidden');
-  $('name').textContent = place.replace(/[-_]+/g,' ');
-  document.title = 'Avis · ' + $('name').textContent;
-
-  const box = $('stars');
+function picker(box, label, onSet, allowClear){
+  let val = 0; const btns = [];
+  box.setAttribute('role', 'radiogroup'); box.setAttribute('aria-label', label);
   for (let i = 1; i <= 5; i++){
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = '★';
-    b.setAttribute('role','radio'); b.setAttribute('aria-checked','false');
-    b.setAttribute('aria-label', i + ' sur 5 : ' + LABELS[i]);
-    b.addEventListener('click', () => setRating(i));
-    box.appendChild(b);
+    b.setAttribute('role', 'radio'); b.setAttribute('aria-label', i + ' sur 5');
+    b.addEventListener('click', () => set(allowClear && val === i ? 0 : i, true));
+    box.appendChild(b); btns.push(b);
   }
-  $('form').addEventListener('submit', submit);
-  if (Store.alreadyReviewed(place)) lockForm();
-  render();
+  function set(n, user){
+    val = n;
+    btns.forEach((b, i) => { b.classList.toggle('on', i < n); b.setAttribute('aria-checked', String(i + 1 === n)); });
+    onSet(n, user, btns[n - 1]);
+  }
 }
 
-function setRating(n){
-  rating = n;
-  [...$('stars').children].forEach((b,i) => {
-    b.classList.toggle('on', i < n);
-    b.setAttribute('aria-checked', String(i + 1 === n));
+/* ================= DÉMARRAGE ================= */
+const place = (new URLSearchParams(location.search).get('r') || '').trim().slice(0, 60);
+if (!place) $('gate').classList.remove('hidden'); else start();
+
+function start(){
+  $('app').classList.remove('hidden');
+  const title = place.replace(/[-_]+/g, ' ');
+  $('name').textContent = title; document.title = 'Avis · ' + title;
+
+  picker($('stars'), 'Note globale sur 5', (n, user, btn) => {
+    rating = n; $('hint').textContent = LABELS[n]; $('send').disabled = !n;
+    if (user) burst(btn, 1, 5);
   });
-  $('hint').textContent = LABELS[n];
-  $('send').disabled = false;
-  burst($('stars').children[n - 1], 1, 5);
+  CONFIG.criteria.forEach(c => {
+    const row = document.createElement('div'); row.className = 'crit';
+    const lab = document.createElement('span'); lab.textContent = c.label;
+    const box = document.createElement('div'); box.className = 'mini';
+    row.append(lab, box); $('crits').appendChild(row);
+    picker(box, c.label + ' sur 5', n => { if (n) details[c.id] = n; else delete details[c.id]; }, true);
+  });
+
+  $('comment').addEventListener('input', () => { $('cnt').textContent = $('comment').value.length + ' / 600'; });
+  $('form').addEventListener('submit', submit);
+  $('more').addEventListener('click', () => renderList(true));
+  if (Store.alreadyReviewed(place)) lockForm();
+  load();
 }
 
 function lockForm(){
-  [...$('form').elements].forEach(el => el.disabled = true);
+  [...$('form').elements].filter(el => !el.closest('#thanks')).forEach(el => el.disabled = true);
+  $('send').classList.add('hidden');
   $('thanks').style.display = 'block';
-  $('thanks').querySelector('p').textContent = 'Vous avez déjà donné votre avis aujourd’hui. Merci !';
+  $('thanksTitle').textContent = 'Merci, c’est déjà noté !';
+  $('thanksText').textContent = 'Vous avez déjà donné votre avis aujourd’hui sur ce lieu.';
 }
 
+/* ================= ENVOI ================= */
 async function submit(e){
   e.preventDefault();
-  if (!rating){ $('err').textContent = 'Choisissez une note de 1 à 5 étoiles.'; return; }
-  const review = {
-    rating,
-    comment: $('comment').value.trim().slice(0,600),
-    author: $('author').value.trim().slice(0,30) || 'Anonyme',
-    date: new Date().toISOString()
+  if ($('website').value) return thanks('');            // robot : on fait semblant
+  if (!rating){ $('err').textContent = 'Choisissez une note globale de 1 à 5 étoiles.'; return; }
+  const rv = {
+    rating, details: Object.assign({}, details),
+    comment: $('comment').value.trim().slice(0, 600),
+    author: $('author').value.trim().slice(0, 30) || 'Anonyme'
   };
-  $('send').disabled = true;
-  try { await Store.add(place, review); }
-  catch(err){ $('err').textContent = 'L’avis n’a pas pu être envoyé. Vérifiez votre connexion et réessayez.'; $('send').disabled = false; return; }
+  $('send').disabled = true; $('send').textContent = 'Envoi…'; $('err').textContent = '';
+  try { await Store.add(place, rv); }
+  catch(err){
+    $('err').textContent = 'L’avis n’a pas pu être envoyé. Vérifiez votre connexion et réessayez.';
+    $('send').disabled = false; $('send').textContent = 'Publier mon avis'; return;
+  }
   Store.markReviewed(place);
   burst($('send'), 3, 14);
-  $('err').textContent = '';
-  $('send').style.display = 'none';
-  $('thanks').style.display = 'block';
-  [...$('form').elements].forEach(el => el.disabled = true);
-  render();
+  thanks(rv.comment);
+  load();
 }
 
-async function render(){
-  let reviews = await Store.list(place);
-  if (reviews === null){ $('list').textContent = 'Impossible de charger les avis pour le moment.'; return; }
-  const n = reviews.length;
-  const avg = n ? reviews.reduce((s,r) => s + r.rating, 0) / n : 0;
-  $('avg').textContent = n ? avg.toFixed(1).replace('.',',') + ' / 5' : '–';
+function thanks(comment){
+  [...$('form').elements].filter(el => !el.closest('#thanks')).forEach(el => el.disabled = true);
+  $('form').querySelectorAll('h2,.sep,.crit,label,textarea,.cnt,input,.stars,.hint,#crits').forEach(n => { if (!n.closest('#thanks')) n.classList.add('hidden'); });
+  $('send').classList.add('hidden'); $('err').classList.add('hidden');
+  $('thanks').style.display = 'block';
+  if (/^https:\/\//.test(CONFIG.googleUrl)){
+    $('ggl').classList.remove('hidden');
+    $('gglBtn').href = CONFIG.googleUrl;
+    if (!comment) $('copyBtn').classList.add('hidden');
+    $('copyBtn').onclick = async () => {
+      clearInterval(timer); $('countdown').textContent = '';
+      try { await navigator.clipboard.writeText(comment); $('copyBtn').textContent = 'Copié ✓ Collez-le sur Google'; }
+      catch(e){ $('copyBtn').textContent = 'Copie impossible, sélectionnez le texte à la main'; }
+    };
+    let s = CONFIG.redirectSeconds;
+    const upd = () => { $('countdown').innerHTML = 'Redirection vers Google dans ' + s + ' s · <button type="button" class="link" id="stop">Rester ici</button>';
+      $('stop').onclick = () => { clearInterval(timer); $('countdown').textContent = ''; }; };
+    upd();
+    timer = setInterval(() => { s--; if (s <= 0){ clearInterval(timer); location.href = CONFIG.googleUrl; } else upd(); }, 1000);
+  }
+}
+
+/* ================= AFFICHAGE DES AVIS ================= */
+async function load(){
+  const r = await Store.list(place);
+  if (r === null){
+    $('list').textContent = '';
+    const p = document.createElement('p'); p.className = 'empty'; p.textContent = 'Impossible de charger les avis pour le moment. ';
+    const b = document.createElement('button'); b.className = 'link'; b.type = 'button'; b.textContent = 'Réessayer';
+    b.onclick = load; p.appendChild(b); $('list').appendChild(p); return;
+  }
+  allReviews = r; summary(); renderList(false);
+}
+
+function bar(cls, label, pct, value){
+  const row = document.createElement('div'); row.className = 'bar ' + cls;
+  row.innerHTML = '<span></span><i><b></b></i><em></em>';
+  row.children[0].textContent = label; row.querySelector('b').style.width = pct + '%'; row.children[2].textContent = value;
+  return row;
+}
+
+function summary(){
+  const n = allReviews.length;
+  $('avg').textContent = n ? fmt1(allReviews.reduce((s, r) => s + r.rating, 0) / n) + ' / 5' : '–';
   $('count').textContent = n ? n + (n > 1 ? ' avis' : ' avis') : '';
-
-  const bars = $('bars'); bars.textContent = '';
-  if (n) for (let s = 5; s >= 1; s--){
-    const c = reviews.filter(r => r.rating === s).length;
-    const row = document.createElement('div'); row.className = 'bar';
-    row.innerHTML = '<span></span><i><b></b></i><span></span>';
-    row.children[0].textContent = s;
-    row.querySelector('b').style.width = (c / n * 100) + '%';
-    row.children[2].textContent = c;
-    bars.appendChild(row);
+  $('bars').textContent = ''; $('critBars').textContent = '';
+  if (!n) return;
+  for (let s = 5; s >= 1; s--){
+    const c = allReviews.filter(r => r.rating === s).length;
+    $('bars').appendChild(bar('s', s, c / n * 100, c));
   }
+  CONFIG.criteria.forEach(c => {
+    const v = allReviews.map(r => r.details[c.id]).filter(Boolean);
+    if (v.length) { const a = v.reduce((x, y) => x + y, 0) / v.length; $('critBars').appendChild(bar('', c.label, a / 5 * 100, fmt1(a))); }
+  });
+}
 
-  const list = $('list'); list.textContent = '';
-  if (!n){
+function renderList(more){
+  const list = $('list');
+  if (!more){ list.textContent = ''; shown = 0; }
+  if (!allReviews.length){
     const p = document.createElement('p'); p.className = 'empty';
-    p.textContent = 'Aucun avis pour l’instant. Soyez le premier à donner le vôtre !';
-    list.appendChild(p); return;
+    p.textContent = 'Aucun avis pour l’instant. Soyez le premier à donner le vôtre !'; list.appendChild(p);
+    $('more').classList.add('hidden'); return;
   }
-  reviews.forEach(r => {
+  allReviews.slice(shown, shown + CONFIG.pageSize).forEach(r => {
     const d = document.createElement('div'); d.className = 'review';
     const h = document.createElement('div'); h.className = 'rhead';
-    const left = document.createElement('span');
-    const st = document.createElement('span'); st.className = 'rstars';
-    st.textContent = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+    const st = document.createElement('span'); st.className = 'rstars'; st.textContent = stars(r.rating);
     st.setAttribute('aria-label', r.rating + ' sur 5');
-    left.appendChild(st);
-    const right = document.createElement('span');
-    right.textContent = r.author + ' · ' + new Date(r.date).toLocaleDateString('fr-FR');
-    h.append(left, right); d.appendChild(h);
+    const meta = document.createElement('span'); meta.textContent = r.author + ' · ' + dateLabel(r.date);
+    h.append(st, meta); d.appendChild(h);
     if (r.comment){ const p = document.createElement('p'); p.textContent = r.comment; d.appendChild(p); }
+    const chips = CONFIG.criteria.filter(c => r.details[c.id]);
+    if (chips.length){
+      const w = document.createElement('div'); w.className = 'chips';
+      chips.forEach(c => { const s = document.createElement('span'); s.textContent = c.label + ' ' + r.details[c.id] + '/5'; w.appendChild(s); });
+      d.appendChild(w);
+    }
     list.appendChild(d);
   });
+  shown += CONFIG.pageSize;
+  $('more').classList.toggle('hidden', shown >= allReviews.length);
 }
 </script>
 </body>
