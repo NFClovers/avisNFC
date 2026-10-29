@@ -176,6 +176,15 @@ const Store = {
     if (!res.ok) res = await fetch(url, opts(base)); // si la colonne « details » n’existe pas encore
     if (!res.ok) throw new Error('HTTP ' + res.status);
   },
+  async shop(place){
+    try {
+      const res = await fetch(CONFIG.supabaseUrl + '/rest/v1/rpc/shop_public', {
+        method: 'POST', headers: this.headers(), body: JSON.stringify({ p_slug: place }) });
+      if (!res.ok) return null;
+      const rows = await res.json();
+      return Array.isArray(rows) && rows[0] ? rows[0] : null;
+    } catch(e){ return null; }
+  },
   alreadyReviewed(place){
     try { return Date.now() - Number(localStorage.getItem('last:' + place) || 0) < 864e5; } catch(e){ return false; }
   },
@@ -252,6 +261,11 @@ function start(){
   $('more').addEventListener('click', () => renderList(true));
   if (Store.alreadyReviewed(place)) lockForm();
   load();
+  Store.shop(place).then(sh => {
+    if (!sh) return;
+    if (sh.name){ $('name').textContent = sh.name; document.title = 'Avis · ' + sh.name; }
+    if (typeof sh.google_url === 'string' && /^https:\/\//.test(sh.google_url)) CONFIG.googleUrl = sh.google_url;
+  });
 }
 
 function lockForm(){
